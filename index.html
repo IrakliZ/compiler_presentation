@@ -56,9 +56,9 @@
 
 				<section id="fragments">
 					<h2>The Problems</h2>
-					<p class="fragment">Too many temp variables when adding</p>
+					<p class="fragment">Large number of intermediate variables</p>
 					<p class="fragment">Too many conditionals</p>
-					<p class="fragment">Slow coloring</p>
+					<p class="fragment">Slow graph-coloring</p>
 					<p class="fragment">Overall, too many lines of code to debug</p>
 				</section>
 
@@ -110,7 +110,7 @@ print f()
 					</section>
 
 					<section>
-						<h2>Interesting example 1</h2>
+						<h2>Example</h2>
 						<pre><code data-trim contenteditable>
 def f():
 	y = 12
@@ -119,7 +119,7 @@ def f():
 
 print f()
 						</code></pre>
-						<p>Converts into</p>
+						<p>Converts into:</p>
 						<pre><code data-trim contenteditable>
 def f():
 	y = 12
@@ -130,7 +130,7 @@ print f()
 						</code></pre>
 					</section>
 					<section>
-						<h2>Interesting example 2</h2>
+						<h2>Example</h2>
 						<pre><code data-trim contenteditable>
 def f():
 	y = 12
@@ -139,7 +139,7 @@ def f():
 
 print f()
 						</code></pre>
-						<p>Converts into</p>
+						<p>Converts into:</p>
 						<pre><code data-trim contenteditable>
 def f():
 	y = 12
@@ -155,7 +155,6 @@ print f()
 						<p>If child nodes include Const, add it to a list</p>
 						<p>If it includes another Add node, recurse on it</p>
 						<p>For anything else, recurse on it and add to another list</p>
-						<p>Return the two lists</p>
 					</section>
 				</section>
 
@@ -193,23 +192,24 @@ def f():
 				<section>
 					<section>
 						<h2>Compile-Time Type Checking</h2>
-						<h4>The Problem</h4>
 						<p>Enormous conditionals</p>
+                        <p>Explication is often useless</p>
 						<p>Hard to debug</p>
-                        <img src="duck_type.jpg" alt="">
+                        <img src="compiling.png" alt="">
 					</section>
 
 					<section>
 						<h2>Goal</h2>
-						<p>Determine if we know variables typing at compile-time</p>
+						<p>Determine if we know variables' typing at compile-time</p>
 						<p>Don't explicate if the type is known</p>
+                        <img src="duck_type.jpg" alt="">
 					</section>
 
 					<section>
 						<h2>Type-Checking Implementation</h2>
 						<p>At every statement, store all variable types in a dictionary</p>
 						<p>Handle if statements and function arguments </p>
-						<p>At explicate pass, use the dictionary to skip some steps</p>
+						<p>At explicate pass, use the dictionary to avoid explication</p>
                         <img src="ExampleDependency.png" alt="">
 					</section>
 
@@ -225,6 +225,21 @@ def f():
     		return InjectFrom('big',CallFunc(Name("add"),
     		[ProjectTo('big',l),ProjectTo('big',r)]))
 						</code></pre>
+                        <p>Instead of:</p>
+                        <pre><code data-trim contenteditable>
+#old method
+    name1 = self.getNewTmp()
+    name2 = self.getNewTmp()
+
+    correctType = IsType('small',[name1,name2])
+    correctBig = IsType('big',[name1,name2])
+    ifExp = IfExp(correctType,InjectFrom('int', Add((ProjectTo
+        ('int',name1),ProjectTo('int',name2)))),IfExp(correctBig
+        ,InjectFrom('big',CallFunc(Name("add"),[ProjectTo('big'
+        ,name1),ProjectTo('big',name2)])),ThrowErr('add_error')))
+
+    return Let(name1, l,Let(name2,r,ifExp))
+                        </code></pre>
 					</section>
 
 					<section>
@@ -236,6 +251,7 @@ z=x+-y
 print z
 						</code></pre>
 						<p>The contents of the dictionary at each point</p>
+                        <small>
 						<pre><code data-trim contenteditable>
 Assign([AssName('True a0', 'OP_ASSIGN')], Const(1.25))
 --> {'True a0': 'bool', 'fvs': 'unknown'}
@@ -249,31 +265,26 @@ Assign([AssName('y a0', 'OP_ASSIGN')], CallFunc(Name('input'),
 	[], None, None))
 --> {'False a0': 'bool', 'fvs': 'unknown', 'y a0': 'int', 'True a0':
 	'bool', 'x a0': 'int'}
-						</code></pre>
-					</section>
-
-					<section>
-						<p>Continued</p>
-						<pre><code data-trim contenteditable>
 Assign([AssName('z a0', 'OP_ASSIGN')], Add((Name('x a0'),
-	UnarySub(Name('y a0')))))
+    UnarySub(Name('y a0')))))
 --> {'False a0': 'bool', 'fvs': 'unknown', 'y a0': 'int', 'z a0':
-	'int', 'True a0': 'bool', 'x a0': 'int'}
+    'int', 'True a0': 'bool', 'x a0': 'int'}
 Printnl([Name('z a0')], None)
 --> {'False a0': 'bool', 'y a0': 'int', 'z a0': 'int', 'True a0':
-	'bool', 'fvs': 'unknown', 'x a0': 'int'}
+    'bool', 'fvs': 'unknown', 'x a0': 'int'}
 --> {'False a0': 'bool', 'y a0': 'int', 'z a0': 'int', 'True a0':
-	'bool', 'fvs': 'unknown', 'x a0': 'int'}
+    'bool', 'fvs': 'unknown', 'x a0': 'int'}
 						</code></pre>
+                    </small>
 					</section>
 
 					<section>
 						<h2>Drastic Improvement</h2>
-						<p>Run time of infamous simplex test without our type checking</p>
+						<p>Compile time of infamous simplex test without type checking:</p>
 						<pre><code data-trim contenteditable>
 59038 lines, 1 min 10 secs compile
 						</code></pre>
-						<p>Run time with our type checking</p>
+						<p>Compile time with our type checking:</p>
 						<pre><code data-trim contenteditable>
 10065 lines, 5 secs compile
 						</code></pre>
@@ -284,7 +295,7 @@ Printnl([Name('z a0')], None)
 
 				<section>
 					<h2>Future Usage and Development</h2>
-					<p>Constant Propagation</p>
+					<p>Constant Propagation of If, While, and Functions</p>
 					<p>Analysis for heapified variables and lists</p>
 					<p>Type-error checking and warnings at compile-time</p>
 					<p>Removing unnecessary InjectFrom and ProjectTo lines</p>
