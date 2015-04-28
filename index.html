@@ -145,13 +145,11 @@ print f()
 					</section>
 
 					<section>
-						<h2>Implementation</h2>
-						<p>Recurse untill Add node</p>
+						<h2>Folding Implementation</h2>
 						<p>If child nodes include Const, add it to a list</p>
 						<p>If it includes another Add node, recurse on it</p>
 						<p>For anything else, recurse on it and add to another list</p>
 						<p>Return the two lists</p>
-						<p>Constant folding is the first step in the compiler</p>
 					</section>
 				</section>
 
@@ -177,10 +175,8 @@ def f():
 					</section>
 
 					<section>
-						<h2>Implementation</h2>
-						<p>Similar to type checking</p>
+						<h2>Propagation Implementation</h2>
 						<p>Create a dictionary mapping variables to values</p>
-						<p>Recurse on the AST</p>
 						<p>At every node, update the dictionary</p>
 						<p>If variable's value is known, store it, otherwise set it to 'unknown'</p>
 						<p>Do the folding in second recursion using the dictionary</p>
@@ -190,34 +186,29 @@ def f():
 
 				<section>
 					<section>
-						<h2>Type Checking</h2>
+						<h2>Compile-Time Type Checking</h2>
 						<h4>The Problem</h4>
-						<p>Too many conditionals</p>
-						<p>Slow compilation</p>
+						<p>Enormous conditionals</p>
 						<p>Hard to debug</p>
+                        <img src="duck_type.jpg" alt="">
 					</section>
 
 					<section>
-						<h2>What it is</h2>
-						<p>Find the type of variable during compile time</p>
+						<h2>Goal</h2>
+						<p>Determine if we know variables typing at compile-time</p>
 						<p>Don't explicate if the type is known</p>
 					</section>
 
 					<section>
-						<h2>Implementation</h2>
-						<p>Do extra pass before explicate</p>
-						<p>At every statement, store known types in a dictionary</p>
-						<p>For if statements, if then/else types aren't same, set to 'unknown'</p>
-						<p>Set function args to 'unknown'</p>
+						<h2>Type-Checking Implementation</h2>
+						<p>At every statement, store all variable types in a dictionary</p>
+						<p>Handle if statements and function arguments </p>
 						<p>At explicate pass, use the dictionary to skip some steps</p>
+                        <img src="ExampleDependency.png" alt="">
 					</section>
 
 					<section>
-						<img src="ExampleDependency.png" alt="">
-					</section>
-
-					<section>
-						<h2>What the skipping step looks like</h2>
+						<h2>Type-Checking Code</h2>
 						<pre><code data-trim contenteditable>
 #adding l and r:
 	if (lType == 'int' or lType =='bool')
@@ -271,29 +262,26 @@ Printnl([Name('z a0')], None)
 					</section>
 
 					<section>
-						<h2>Why this is important</h2>
+						<h2>Drastic Improvement</h2>
 						<p>Run time of infamous simplex test without our type checking</p>
 						<pre><code data-trim contenteditable>
-59038 lines, 1min 10 secs compile
+59038 lines, 1 min 10 secs compile
 						</code></pre>
 						<p>Run time with our type checking</p>
 						<pre><code data-trim contenteditable>
 10065 lines, 5 secs compile
 						</code></pre>
-						<p>Certain programs can take forever to run</p>
-						<p>Enormous condition statements for simple things like addition and comparisons</p>
-						<p>Easier to run and debug assembly</p>
-						<p>Removes the overhead of determining obj type at runtime</p>
+						<p>Eliminates massive conditionals of addition and comparisons</p>
+						<p>Benefits to debugging and runtime performance</p>
 					</section>
 				</section>
 
 				<section>
 					<h2>Future Usage and Development</h2>
-					<p>Include Constant Propagation</p>
-					<p>Perform analysis on specific heap-based values for function calling</p>
-					<p>Perform analysis on Lists</p>
-					<p>Include type-error checking and warnings at compile-time</p>
-					<p>Removed unneeded Inject-from Project-to when type is know</p>
+					<p>Constant Propagation</p>
+					<p>Analysis for heapified variables and lists</p>
+					<p>Type-error checking and warnings at compile-time</p>
+					<p>Removing unnecessary InjectFrom and ProjectTo lines</p>
 				</section>
 
 
